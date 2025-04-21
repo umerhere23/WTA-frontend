@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaEnvelope, FaLock, FaUser, FaBuilding, FaPhone } from 'react-icons/fa';
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 import styles from './Auth.module.css';
+import request from '../../api/request.js';  
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-     console.log('Logging in with:', { email, password });
+
+    try {
+      const data = await request({
+        method: 'post',
+        url: '/auth/login', 
+        data: { email, password },
+      });
+
+      console.log('Login Success:', data);
+     } catch (err) {
+      console.error('Login Failed:', err);
+    }
   };
 
   return (

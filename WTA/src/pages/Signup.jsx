@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaUser, FaBuilding, FaPhone } from 'react-icons/fa';
 import styles from './Auth.module.css';
-
+import request from '../../api/request';  
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -20,9 +20,33 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-     console.log('Signing up with:', formData);
+
+     if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    try {
+      const payload = {
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.department,
+        password: formData.password,
+      };
+
+      const response = await request({
+        method: 'post',
+        url: '/auth/signup',  
+        data: payload,
+      });
+
+      console.log('Signup successful:', response);
+     } catch (error) {
+      console.error('Signup failed:', error);
+    }
   };
 
   return (
