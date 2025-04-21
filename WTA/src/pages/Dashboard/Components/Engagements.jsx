@@ -16,7 +16,14 @@ const Engagements = () => {
     employees: [],
   });
   const [loading, setLoading] = useState(true);
-
+  useEffect(() => {
+    toast.info("Toast test - should show");
+  }, []);
+  useEffect(() => {
+    console.log("Toast test");
+    toast("Toast test working?");
+  }, []);
+  
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -421,7 +428,10 @@ const EngagementModal = ({ onClose, onSave, data, dropdownData, isEditMode }) =>
           </div>
         </form>
       </div>
-            <ToastContainer />
+      <ToastContainer
+  position="top-right"
+  style={{ zIndex: 9999 }}
+/>
       
     </div>
   );
