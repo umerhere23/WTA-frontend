@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { 
   FiMenu, 
   FiX,
@@ -18,6 +19,9 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const user = useSelector((state) => state.auth.user);
+  console.log("--->",user)
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -29,16 +33,14 @@ const DashboardLayout = () => {
 
   return (
     <div className={`${styles.dashboardContainer} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-      {/* Mobile Header */}
-      <header className={styles.mobileHeader}>
+       <header className={styles.mobileHeader}>
         <button className={styles.menuButton} onClick={toggleMobileMenu}>
           {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
         <h1 className={styles.mobileLogo}>HR Panel</h1>
       </header>
 
-      {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${mobileMenuOpen ? styles.mobileMenuOpen : ''}`}>
+       <aside className={`${styles.sidebar} ${mobileMenuOpen ? styles.mobileMenuOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.logo}>
             {sidebarOpen ? 'HR Panel' : 'HR'}
@@ -79,13 +81,12 @@ const DashboardLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className={styles.mainContent}>
+       <main className={styles.mainContent}>
         <header className={styles.header}>
-          <h1>Welcome, HR User</h1>
+          <h1>Welcome, {user?.role}</h1>
           <div className={styles.userProfile}>
             <FiUser size={20} />
-            <span>John Doe</span>
+            <span>{user?.name}</span>
           </div>
         </header>
         <section className={styles.content}>

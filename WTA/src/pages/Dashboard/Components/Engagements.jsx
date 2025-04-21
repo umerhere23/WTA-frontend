@@ -1,24 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import styles from './Engagements.module.css';
-import EngagementModal from './EngagementModal';
+import { FiX, FiUser, FiBriefcase, FiCalendar, FiMail, FiCheck, FiTrash2, FiEdit } from 'react-icons/fi';
 import request from '../../../../api/request';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import styles from './Engagements.module.css';
+ 
 const Engagements = () => {
   const [engagements, setEngagements] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [dropdownData, setDropdownData] = useState({
+    jobTitles: [],
+    supervisors: [],
+    departments: [],
+    employees: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-  const fetchEngagements = async () => {
+  const fetchData = async () => {
     try {
-      const response = await request({ method: 'get', url: '/engagements' });
-      setEngagements(response.data);
+      setLoading(true);
+      const [
+        engagementsRes, 
+        jobTitlesRes, 
+        supervisorsRes, 
+        departmentsRes, 
+        employeesRes
+      ] = await Promise.all([
+        request({ method: 'get', url: '/engagements' }),
+        request({ method: 'get', url: '/jobTitles/jobs' }),
+        request({ method: 'get', url: '/supervisors' }),
+        request({ method: 'get', url: '/departments' }),
+        request({ method: 'get', url: '/employees' })
+      ]);
+
+      setEngagements(engagementsRes.data);
+      setDropdownData({
+        jobTitles: jobTitlesRes.data,
+        supervisors: supervisorsRes.data,
+        departments: departmentsRes.data,
+        employees: employeesRes.data,
+      });
     } catch (error) {
-      console.error('Failed to fetch engagements:', error);
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEngagements();
+    fetchData();
   }, []);
 
   const handleAdd = () => {
@@ -26,73 +57,372 @@ const Engagements = () => {
     setShowModal(true);
   };
 
-  const handleEdit = (record) => {
-    setEditData(record);
+  const handleEdit = (engagement) => {
+    setEditData(engagement);
     setShowModal(true);
   };
 
-  const handleSave = async (formData) => {
-    console.log("Submitting form data:", formData);
-
+  const handleDelete = async (engagementId) => {
     try {
-      if (formData.EngagementID) {
-        await request({ method: 'put', url: `/engagements/${formData.EngagementID}`, data: formData });
-      } else {
-        await request({ method: 'post', url: '/engagements', data: formData });
-
-      }
-      fetchEngagements();
-      setShowModal(false);
+      await request({ 
+        method: 'delete', 
+        url: `/engagements/${engagementId}`
+      });
+      toast.success('Engagement deleted successfully!');
+      fetchData();
     } catch (error) {
-      console.error('Error saving engagement:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete engagement');
     }
   };
+
+  const handleSave = async (formData) => {
+    try {
+      const payload = {
+        ...formData,
+        EmployeeID: formData.EmployeeID,
+        DepartmentID: formData.DepartmentID,
+        JobTitleID: formData.JobTitleID,
+        SupervisorID: formData.SupervisorID,
+        DeptManagerEmail: formData.DeptManagerEmail,
+        EndDate: formData.EndDate,
+        HRContactEmail: formData.HRContactEmail,
+        StartDate: formData.StartDate,
+        Status: formData.Status
+      };
+
+      if (formData.EngagementID) {
+         await request({ 
+          method: 'put', 
+          url: `/engagements/${formData.EngagementID}`, 
+          data: payload 
+        });
+        toast.success('Engagement updated successfully!');
+      } else {
+         await request({ 
+          method: 'post', 
+          url: '/engagements', 
+          data: payload 
+        });
+        toast.success('Engagement created successfully!');
+      }
+
+      fetchData();
+      setShowModal(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to save engagement');
+    }
+  };
+
+  if (loading) {
+    return <div className={styles.loading}>Loading data...</div>;
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Engagements</h2>
-        <button className={styles.addButton} onClick={handleAdd}>+ Add Engagement</button>
+        <button className={styles.addButton} onClick={handleAdd}>
+          + Add Engagement
+        </button>
       </div>
 
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Department</th>
-            <th>Job Title</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Status</th>
-            <th>Supervisor</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {engagements.map((e) => (
-            <tr key={e.EngagementID}>
-              <td>{e.Employee?.FullName}</td>
-              <td>{e.Department?.DepartmentName}</td>
-              <td>{e.JobTitle?.Title}</td>
-              <td>{e.StartDate}</td>
-              <td>{e.EndDate || '—'}</td>
-              <td>{e.Status}</td>
-              <td>{e.Supervisor?.FullName}</td>
-              <td>
-                <button className={styles.editBtn} onClick={() => handleEdit(e)}>Edit</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {engagements.length === 0 ? (
+        <div className={styles.noData}>No engagements found</div>
+      ) : (
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Job Title</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Supervisor</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {engagements.map((engagement) => (
+                <tr key={engagement.EngagementID}>
+                  <td>
+                    {dropdownData.employees.find(
+                      e => e.EmployeeID === engagement.EmployeeID
+                    )?.FullName || 'N/A'}
+                  </td>
+                  <td>
+                    {dropdownData.departments.find(
+                      d => d.DepartmentID === engagement.DepartmentID
+                    )?.DepartmentName || 'N/A'}
+                  </td>
+                  <td>
+                    {dropdownData.jobTitles.find(
+                      j => j.JobTitleID === engagement.JobTitleID
+                    )?.Title || 'N/A'}
+                  </td>
+                  <td>{new Date(engagement.StartDate).toLocaleDateString()}</td>
+                  <td>
+                    {engagement.EndDate 
+                      ? new Date(engagement.EndDate).toLocaleDateString() 
+                      : '—'}
+                  </td>
+                  <td>{engagement.Status}</td>
+                  <td>
+                    {dropdownData.supervisors.find(
+                      s => s.SupervisorID === engagement.SupervisorID
+                    )?.FullName || 'N/A'}
+                  </td>
+                  <td className={styles.actionCell}>
+                    <button 
+                      className={styles.editBtn} 
+                      onClick={() => handleEdit(engagement)}
+                    >
+                      <FiEdit />
+                    </button>
+                    <button 
+                      className={styles.deleteBtn} 
+                      onClick={() => handleDelete(engagement.EngagementID)}
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
         <EngagementModal
           onClose={() => setShowModal(false)}
           onSave={handleSave}
           data={editData}
+          dropdownData={dropdownData}
+          isEditMode={!!editData}
         />
       )}
+
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </div>
+  );
+};
+
+const EngagementModal = ({ onClose, onSave, data, dropdownData, isEditMode }) => {
+  const [form, setForm] = React.useState({
+    EngagementID: data?.EngagementID || '',
+    EmployeeID: data?.EmployeeID || '',
+    DepartmentID: data?.DepartmentID || '',
+    JobTitleID: data?.JobTitleID || '',
+    SupervisorID: data?.SupervisorID || '',
+    StartDate: data?.StartDate || '',
+    EndDate: data?.EndDate || '',
+    DeptManagerEmail: data?.DeptManagerEmail || '',
+    HRContactEmail: data?.HRContactEmail || '',
+    Status: data?.Status || 'Active',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(form);
+  };
+
+  return (
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modal}>
+        <div className={styles.modalHeader}>
+          <h3>{isEditMode ? 'Edit Engagement' : 'New Engagement'}</h3>
+          <button onClick={onClose} className={styles.closeButton}>
+            <FiX size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label>
+                <FiUser className={styles.inputIcon} />
+                Employee
+              </label>
+              <select
+                name="EmployeeID"
+                value={form.EmployeeID}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Employee</option>
+                {(dropdownData?.employees || []).map(emp => (
+                  <option key={emp.EmployeeID} value={emp.EmployeeID}>
+                    {emp.FullName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiBriefcase className={styles.inputIcon} />
+                Department
+              </label>
+              <select
+                name="DepartmentID"
+                value={form.DepartmentID}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Department</option>
+                {(dropdownData?.departments || []).map(dept => (
+                  <option key={dept.DepartmentID} value={dept.DepartmentID}>
+                    {dept.DepartmentName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiBriefcase className={styles.inputIcon} />
+                Job Title
+              </label>
+              <select
+                name="JobTitleID"
+                value={form.JobTitleID}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Job Title</option>
+                {(dropdownData?.jobTitles || []).map(job => (
+                  <option key={job.JobTitleID} value={job.JobTitleID}>
+                    {job.Title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiUser className={styles.inputIcon} />
+                Supervisor
+              </label>
+              <select
+                name="SupervisorID"
+                value={form.SupervisorID}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Supervisor</option>
+                {(dropdownData?.supervisors || []).map(sup => (
+                  <option key={sup.SupervisorID} value={sup.SupervisorID}>
+                    {sup.FullName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiCalendar className={styles.inputIcon} />
+                Start Date
+              </label>
+              <input
+                type="date"
+                name="StartDate"
+                value={form.StartDate}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiCalendar className={styles.inputIcon} />
+                End Date
+              </label>
+              <input
+                type="date"
+                name="EndDate"
+                value={form.EndDate}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiMail className={styles.inputIcon} />
+                Dept. Manager Email
+              </label>
+              <input
+                type="email"
+                name="DeptManagerEmail"
+                value={form.DeptManagerEmail}
+                onChange={handleChange}
+                placeholder="manager@company.com"
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiMail className={styles.inputIcon} />
+                HR Contact Email
+              </label>
+              <input
+                type="email"
+                name="HRContactEmail"
+                value={form.HRContactEmail}
+                onChange={handleChange}
+                placeholder="hr@company.com"
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>
+                <FiCheck className={styles.inputIcon} />
+                Status
+              </label>
+              <select
+                name="Status"
+                value={form.Status}
+                onChange={handleChange}
+                required
+              >
+                <option value="Active">Active</option>
+                <option value="Ended">Ended</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Terminated">Terminated</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.buttons}>
+            <button type="button" onClick={onClose} className={styles.cancelButton}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.saveButton}>
+              {isEditMode ? 'Update Engagement' : 'Create Engagement'}
+            </button>
+          </div>
+        </form>
+      </div>
+            <ToastContainer />
+      
     </div>
   );
 };
