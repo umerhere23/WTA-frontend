@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { DashboardLayout, Engagements, Notifications, Reports,AddEmployee, AddJob } from './Components';
+import { DashboardLayout, Engagements, Notifications, Reports,AddEmployee, AddJob,AddDep } from './Components';
 
 const HRDashboard = () => {
   return (
@@ -11,6 +11,8 @@ const HRDashboard = () => {
         <Route path="reports" element={<Reports />} />
         <Route path="add-employee" element={<AddEmployee />} />  
         <Route path="add-job" element={<AddJob />} />  
+        <Route path="add-department" element={<AddDep />} />  
+
 
       </Route>
     </Routes>
