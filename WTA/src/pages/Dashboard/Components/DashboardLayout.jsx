@@ -30,7 +30,7 @@ const DashboardLayout = () => {
 
   const navItems = [
     { path: 'engagements', label: 'Engagements', icon: <FiBriefcase /> },
-    { path: 'notifications', label: 'Notifications', icon: <FiBell /> },
+    { path: 'add-user', label: 'Add Users', icon: <FiBell /> },
     { path: 'reports', label: 'Reports', icon: <FiBarChart2 /> },
     { path: 'add-employee', label: 'Add Employee', icon: <FiUsers /> },  
     { path: 'add-department', label: 'Add Department', icon: <FiArchive /> },  
