@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiUser, FiBriefcase, FiCalendar, FiMail, FiCheck, FiTrash2, FiEdit } from 'react-icons/fi';
+import { FiX, FiUser, FiBriefcase, FiCalendar, FiMail, FiCheck, FiTrash2, FiEdit, FiSearch } from 'react-icons/fi';
 import request from '../../../../api/request';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Engagements.module.css';
- 
+
 const Engagements = () => {
   const [engagements, setEngagements] = useState([]);
+  const [filteredEngagements, setFilteredEngagements] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    department: '',
+    jobTitle: '',
+    status: '',
+  });
+
   const [dropdownData, setDropdownData] = useState({
     jobTitles: [],
     supervisors: [],
     departments: [],
     employees: [],
   });
-  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     toast.info("Toast test - should show");
   }, []);
+
   useEffect(() => {
     console.log("Toast test");
     toast("Toast test working?");
   }, []);
-  
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -42,6 +52,7 @@ const Engagements = () => {
       ]);
 
       setEngagements(engagementsRes.data);
+      setFilteredEngagements(engagementsRes.data);
       setDropdownData({
         jobTitles: jobTitlesRes.data,
         supervisors: supervisorsRes.data,
@@ -58,6 +69,75 @@ const Engagements = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [searchTerm, filters, engagements]);
+
+  const applyFilters = () => {
+    let result = engagements;
+
+     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(engagement => {
+        const employeeName = dropdownData.employees.find(
+          e => e.EmployeeID === engagement.EmployeeID
+        )?.FullName?.toLowerCase() || '';
+        
+        const departmentName = dropdownData.departments.find(
+          d => d.DepartmentID === engagement.DepartmentID
+        )?.DepartmentName?.toLowerCase() || '';
+        
+        const jobTitle = dropdownData.jobTitles.find(
+          j => j.JobTitleID === engagement.JobTitleID
+        )?.Title?.toLowerCase() || '';
+
+        return (
+          employeeName.includes(term) ||
+          departmentName.includes(term) ||
+          jobTitle.includes(term) ||
+          engagement.Status.toLowerCase().includes(term)
+        );
+      });
+    }
+
+     if (filters.department) {
+      result = result.filter(
+        engagement => engagement.DepartmentID === parseInt(filters.department)
+      );
+    }
+
+    if (filters.jobTitle) {
+      result = result.filter(
+        engagement => engagement.JobTitleID === parseInt(filters.jobTitle)
+      );
+    }
+
+    if (filters.status) {
+      result = result.filter(
+        engagement => engagement.Status === filters.status
+      );
+    }
+
+    setFilteredEngagements(result);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setFilters({
+      department: '',
+      jobTitle: '',
+      status: '',
+    });
+  };
 
   const handleAdd = () => {
     setEditData(null);
@@ -133,7 +213,70 @@ const Engagements = () => {
         </button>
       </div>
 
-      {engagements.length === 0 ? (
+      {/* Search and Filter Section */}
+      <div className={styles.filterSection}>
+        <div className={styles.searchBar}>
+          <FiSearch className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search engagements..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+
+        <div className={styles.filters}>
+          <select
+            name="department"
+            value={filters.department}
+            onChange={handleFilterChange}
+            className={styles.filterSelect}
+          >
+            <option value="">All Departments</option>
+            {dropdownData.departments.map(dept => (
+              <option key={dept.DepartmentID} value={dept.DepartmentID}>
+                {dept.DepartmentName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="jobTitle"
+            value={filters.jobTitle}
+            onChange={handleFilterChange}
+            className={styles.filterSelect}
+          >
+            <option value="">All Job Titles</option>
+            {dropdownData.jobTitles.map(job => (
+              <option key={job.JobTitleID} value={job.JobTitleID}>
+                {job.Title}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className={styles.filterSelect}
+          >
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
+
+          <button 
+            onClick={resetFilters} 
+            className={styles.resetButton}
+          >
+            Reset Filters
+          </button>
+        </div>
+      </div>
+
+      {filteredEngagements.length === 0 ? (
         <div className={styles.noData}>No engagements found</div>
       ) : (
         <div className={styles.tableContainer}>
@@ -151,7 +294,7 @@ const Engagements = () => {
               </tr>
             </thead>
             <tbody>
-              {engagements.map((engagement) => (
+              {filteredEngagements.map((engagement) => (
                 <tr key={engagement.EngagementID}>
                   <td>
                     {dropdownData.employees.find(
@@ -225,6 +368,8 @@ const Engagements = () => {
     </div>
   );
 };
+
+
 
 const EngagementModal = ({ onClose, onSave, data, dropdownData, isEditMode }) => {
   const [form, setForm] = React.useState({
@@ -412,9 +557,7 @@ const EngagementModal = ({ onClose, onSave, data, dropdownData, isEditMode }) =>
               >
                 <option value="Active">Active</option>
                 <option value="Ended">Ended</option>
-                <option value="On Leave">On Leave</option>
-                <option value="Terminated">Terminated</option>
-              </select>
+               </select>
             </div>
           </div>
 

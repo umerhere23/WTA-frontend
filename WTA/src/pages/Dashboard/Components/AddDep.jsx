@@ -3,6 +3,7 @@ import styles from './AddDep.module.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import request from '../../../../api/request';
+import { FiEdit2, FiTrash2, FiPlus, FiX } from 'react-icons/fi';
 
 const DepartmentPage = () => {
   const [departments, setDepartments] = useState([]);
@@ -11,6 +12,7 @@ const DepartmentPage = () => {
   const [selectedDep, setSelectedDep] = useState(null);
   const [form, setForm] = useState({ DepartmentName: '' });
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchDepartments = async () => {
     try {
@@ -52,14 +54,14 @@ const DepartmentPage = () => {
           method: 'PUT',
           data: form
         });
-        toast.success('Department updated');
+        toast.success('Department updated successfully');
       } else {
         await request({
           url: '/departments',
           method: 'POST',
           data: form
         });
-        toast.success('Department created');
+        toast.success('Department created successfully');
       }
       fetchDepartments();
       closeModal();
@@ -74,71 +76,148 @@ const DepartmentPage = () => {
     if (!window.confirm('Are you sure you want to delete this department?')) return;
     try {
       await request({
-        url: `/departments/${id}`,  // ID from DepartmentID
+        url: `/departments/${id}`,
         method: 'DELETE'
       });
-      toast.success('Department deleted');
+      toast.success('Department deleted successfully');
       fetchDepartments();
     } catch (err) {
       toast.error('Failed to delete department');
     }
   };
-  
-  
+
+  const filteredDepartments = departments.filter(dep => 
+    dep.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dep.DepartmentID.toString().includes(searchTerm)
+  );
 
   return (
-    <div className={styles.page}>
-      <h2>Departments</h2>
-      <button className={styles.addBtn} onClick={() => openModal()}>Add Department</button>
-      <table className={styles.table}>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Department ID</th>
-      <th>Department Name</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {departments.map((dep, index) => (
-      <tr key={dep.DepartmentID}>
-        <td>{index + 1}</td>
-        <td>{dep.DepartmentID}</td> {/* Show DepartmentID */}
-        <td>{dep.DepartmentName}</td>
-        <td>
-          <button className={styles.editBtn} onClick={() => openModal(dep)}>Edit</button>
-          <button className={styles.deleteBtn} onClick={() => deleteDepartment(dep.DepartmentID)}>Delete</button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>Department Management</h2>
+        <div className={styles.controls}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Search departments..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+          <button className={styles.addButton} onClick={() => openModal()}>
+            <FiPlus className={styles.buttonIcon} />
+            Add Department
+          </button>
+        </div>
+      </div>
 
+      <div className={styles.tableContainer}>
+        <table className={styles.departmentTable}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Department ID</th>
+              <th>Department Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDepartments.length > 0 ? (
+              filteredDepartments.map((dep, index) => (
+                <tr key={dep.DepartmentID}>
+                  <td data-label="#">{index + 1}</td>
+                  <td data-label="Department ID">{dep.DepartmentID}</td>
+                  <td data-label="Department Name">{dep.DepartmentName}</td>
+                  <td data-label="Actions">
+                    <div className={styles.actionButtons}>
+                      <button 
+                        className={styles.editBtn} 
+                        onClick={() => openModal(dep)}
+                        title="Edit"
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button 
+                        className={styles.deleteBtn} 
+                        onClick={() => deleteDepartment(dep.DepartmentID)}
+                        title="Delete"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className={styles.noData}>
+                  {searchTerm ? 'No matching departments found' : 'No departments available'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {modalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h3>{editMode ? 'Edit Department' : 'Add Department'}</h3>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                value={form.DepartmentName}
-                onChange={handleChange}
-                placeholder="Department Name"
-                required
-              />
+            <div className={styles.modalHeader}>
+              <h3>{editMode ? 'Edit Department' : 'Add New Department'}</h3>
+              <button onClick={closeModal} className={styles.closeButton}>
+                <FiX />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label>Department Name</label>
+                <input
+                  type="text"
+                  value={form.DepartmentName}
+                  onChange={handleChange}
+                  placeholder="Enter department name"
+                  required
+                />
+              </div>
               <div className={styles.modalActions}>
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : editMode ? 'Update' : 'Create'}
+                <button 
+                  type="submit" 
+                  className={styles.submitButton}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className={styles.loadingText}>Saving...</span>
+                  ) : editMode ? (
+                    'Update Department'
+                  ) : (
+                    'Create Department'
+                  )}
                 </button>
-                <button type="button" onClick={closeModal}>Cancel</button>
+                <button 
+                  type="button" 
+                  onClick={closeModal}
+                  className={styles.cancelButton}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

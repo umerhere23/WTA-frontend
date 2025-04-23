@@ -1,101 +1,366 @@
-.page {
-    padding: 40px;
-    max-width: 800px;
-    margin: auto;
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
   
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
+  .header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
   }
   
-  .addBtn {
-    background-color: #28a745;
+  .title {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  
+  .searchContainer {
+    flex-grow: 1;
+    max-width: 400px;
+    position: relative;
+  }
+  
+  .searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 1rem center;
+    background-size: 1rem;
+  }
+  
+  .searchInput:focus {
+    outline: none;
+    border-color: #4a89dc;
+    box-shadow: 0 0 0 3px rgba(74, 137, 220, 0.2);
+  }
+  
+  .addButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #4a89dc;
     color: white;
-    padding: 8px 16px;
     border: none;
-    border-radius: 6px;
-    margin-bottom: 20px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s;
   }
   
-  .table {
+  .addButton:hover {
+    background-color: #3b7dd8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .buttonIcon {
+    font-size: 1.2rem;
+  }
+  
+  /* Table Styles */
+  .tableContainer {
+    overflow-x: auto;
+    margin-top: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
+  }
+  
+  .departmentTable {
     width: 100%;
     border-collapse: collapse;
+    background-color: #fff;
   }
   
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
+  .departmentTable thead {
+    background-color: #4a89dc;
+    color: white;
+  }
+  
+  .departmentTable th {
+    padding: 1rem;
     text-align: left;
+    font-weight: 600;
+    font-size: 0.9375rem;
   }
   
-  th {
-    background-color: #f0f0f0;
+  .departmentTable td {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+  }
+  
+  .departmentTable tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .departmentTable tr:hover {
+    background-color: rgba(74, 137, 220, 0.05);
+  }
+  
+  /* Action Buttons */
+  .actionButtons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .editBtn, .deleteBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
   }
   
   .editBtn {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    margin-right: 8px;
-    cursor: pointer;
+    background-color: rgba(74, 137, 220, 0.1);
+    color: #4a89dc;
+  }
+  
+  .editBtn:hover {
+    background-color: rgba(74, 137, 220, 0.2);
   }
   
   .deleteBtn {
-    background-color: #dc3545;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
   }
   
+  .deleteBtn:hover {
+    background-color: rgba(231, 76, 60, 0.2);
+  }
+  
+  .noData {
+    text-align: center;
+    padding: 2rem;
+    color: #777;
+    font-style: italic;
+  }
+  
+  /* Modal Styles */
   .modalOverlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
   }
   
   .modal {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 400px;
+    background-color: white;
+    border-radius: 8px;
     width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: fadeIn 0.3s;
   }
   
-  .modal h3 {
-    margin-bottom: 20px;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
-  .modal input {
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .modalHeader h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #777;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0.25rem;
+    border-radius: 50%;
+  }
+  
+  .closeButton:hover {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  
+  .form {
+    padding: 1.5rem;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .formGroup input {
     width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
     border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  
+  .formGroup input:focus {
+    outline: none;
+    border-color: #4a89dc;
+    box-shadow: 0 0 0 2px rgba(74, 137, 220, 0.2);
   }
   
   .modalActions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 1rem;
+    margin-top: 2rem;
   }
   
-  .modalActions button {
-    padding: 8px 14px;
+  .submitButton {
+    background-color: #4a89dc;
+    color: white;
     border: none;
+    padding: 0.75rem 1.5rem;
     border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.3s;
   }
   
+  .submitButton:hover {
+    background-color: #3b7dd8;
+  }
+  
+  .submitButton:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  .cancelButton {
+    background-color: #f1f1f1;
+    color: #333;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .cancelButton:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .loadingText {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+    
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .searchContainer {
+      max-width: 100%;
+    }
+    
+    .addButton {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .departmentTable thead {
+      display: none;
+    }
+    
+    .departmentTable tr {
+      display: block;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #ddd;
+    }
+    
+    .departmentTable td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .departmentTable td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #777;
+      margin-right: 1rem;
+    }
+    
+    .actionButtons {
+      justify-content: flex-end;
+    }
+    
+    .modal {
+      max-width: 95%;
+    }
+    
+    .modalActions {
+      flex-direction: column;
+    }
+    
+    .submitButton,
+    .cancelButton {
+      width: 100%;
+    }
+  }
