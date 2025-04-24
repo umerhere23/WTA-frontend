@@ -4,11 +4,10 @@ import { useSelector } from 'react-redux';
 import { DashboardLayout, Engagements, User, Reports, AddEmployee, AddJob, AddDep } from './Components';
 
 const HRDashboard = () => {
-  const user = useSelector((state) => state.auth.user); // adjust if your slice is different
+  const user = useSelector((state) => state.auth.user);  
 
-  // Check role
-  if (!user || user.role !== 'HR') {
-    return <Navigate to="/" replace />; // redirect to home or login if not HR
+   if (!user || user.role !== 'HR') {
+    return <Navigate to="/" replace />;  
   }
 
   return (

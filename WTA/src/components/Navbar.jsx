@@ -37,16 +37,36 @@ const Navbar = () => {
             </Link>
           </li>
           {user && (
-            <>
-              <li className={styles.navItem}>
-                <Link to="/hr/hr/engagements" className={styles.navLink}>
-                  <FiGrid className={styles.navIcon} />
-                  <span>Dashboard</span>
-                </Link>
-              </li>
-         
-            </>
-          )}
+  <>
+    {user.role === 'HR' && (
+      <li className={styles.navItem}>
+        <Link to="/hr/hr/engagements" className={styles.navLink}>
+          <FiGrid className={styles.navIcon} />
+          <span>Dashboard</span>
+        </Link>
+      </li>
+    )}
+
+    {user.role === 'Supervisor' && (
+      <li className={styles.navItem}>
+        <Link to="/supervisor/supervisor/engagements" className={styles.navLink}>
+          <FiGrid className={styles.navIcon} />
+          <span>Dashboard</span>
+        </Link>
+      </li>
+    )}
+
+    {user.role === 'Manager' && (
+      <li className={styles.navItem}>
+        <Link to="/manager/manager/reports" className={styles.navLink}>
+          <FiGrid className={styles.navIcon} />
+          <span>Dashboard</span>
+        </Link>
+      </li>
+    )}
+  </>
+)}
+
           <li className={styles.navItem}>
             {user ? (
               <button

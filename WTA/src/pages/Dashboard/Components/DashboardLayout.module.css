@@ -1,192 +1,268 @@
-/* Base Styles */
+:root {
+  --secondary: #2c3e50;
+  --text-light: #ecf0f1;
+  --accent: #3498db;
+  --hover-bg: #34495e;
+  --danger: #e74c3c;
+}
+
 .dashboardContainer {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f5f7fa;
-    transition: all 0.3s ease;
+  display: flex;
+  height: 100vh;
+  background: #f8f9fa;
+}
+
+.sidebar {
+  background-color: var(--secondary);
+  color: var(--text-light);
+  width: 250px;
+  min-width: 250px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.sidebarFolded {
+  width: 70px;
+  min-width: 70px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: var(--secondary);
+  border-bottom: 1px solid #34495e;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--text-light);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.navIcon {
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.navLabel {
+  white-space: nowrap;
+}
+
+.active {
+  background-color: var(--accent);
+}
+
+.activeIndicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--accent);
+}
+
+.sidebarFooter {
+  padding: 1rem;
+  border-top: 1px solid #34495e;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userAvatar {
+  background-color: #2980b9;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.header {
+  padding: 1rem 2rem;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  color: var(--secondary);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notificationButton {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: var(--danger);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profileAvatar {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  padding: 0.6rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  color: var(--secondary);
+}
+
+.content {
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.mobileHeader {
+  display: none;
+  background: var(--secondary);
+  color: var(--text-light);
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.mobileLogo {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobileUser {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboardContainer {
+    flex-direction: column;
   }
-  
-  /* Sidebar Styles */
+
   .sidebar {
+    position: absolute;
+    z-index: 1000;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
     width: 250px;
-    background: #2c3e50;
-    color: white;
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 100;
+    min-width: 250px;
   }
-  
-  .sidebarHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+
+  .sidebarOpen .sidebar {
+    transform: translateX(0);
   }
-  
-  .logo {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .toggleButton {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0.5rem;
-    border-radius: 4px;
-  }
-  
-  .toggleButton:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex-grow: 1;
-  }
-  
-  .navItem {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    color: #ecf0f1;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  
-  .navItem:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .navItem.active {
-    background: #3498db;
-    color: white;
-  }
-  
-  .navIcon {
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  .navLabel {
-    white-space: nowrap;
-  }
-  
-  .sidebarFooter {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  /* Main Content Styles */
+
   .mainContent {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    padding: 0;
   }
-  
-  .header {
-    background: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .userProfile {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-  
-  .content {
-    flex-grow: 1;
-    padding: 2rem;
-    overflow-y: auto;
-  }
-  
-  /* Collapsed Sidebar Styles */
-  .dashboardContainer:not(.sidebarOpen) .sidebar {
-    width: 80px;
-  }
-  
-  .dashboardContainer:not(.sidebarOpen) .logo {
-    font-size: 1rem;
-    text-align: center;
-  }
-  
-  /* Mobile Styles */
+
   .mobileHeader {
+    display: flex;
+  }
+
+  .header {
     display: none;
-    padding: 1rem;
-    background: #2c3e50;
-    color: white;
-    justify-content: space-between;
-    align-items: center;
   }
-  
-  .menuButton {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .mobileLogo {
-    font-size: 1.2rem;
-    margin: 0;
-  }
-  
-  @media (max-width: 768px) {
-    .mobileHeader {
-      display: flex;
-    }
-  
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -100%;
-      height: 100vh;
-      z-index: 1000;
-      transition: left 0.3s ease;
-    }
-  
-    .sidebar.mobileMenuOpen {
-      left: 0;
-    }
-  
-    .dashboardContainer.sidebarOpen .sidebar {
-      width: 250px;
-    }
-  
-    .mainContent {
-      margin-left: 0;
-    }
-  }
-  
-  /* Animation for sidebar items */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  
-  .navItem {
-    animation: fadeIn 0.3s ease forwards;
-  }
+}
+.sidebarFolded .navLabel {
+  opacity: 0;
+  transform: scaleX(0);
+  width: 0;
+  display: none;
+}

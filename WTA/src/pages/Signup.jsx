@@ -3,12 +3,18 @@ import { Link } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaUser, FaBuilding, FaPhone } from 'react-icons/fa';
 import styles from './Auth.module.css';
 import request from '../../api/request';  
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Signup = () => {
+  const navigate = useNavigate(); // for navigation
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     department: '',
+    role: '',
     password: '',
     confirmPassword: ''
   });
@@ -23,8 +29,8 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match!');
       return;
     }
 
@@ -39,15 +45,25 @@ const Signup = () => {
 
       const response = await request({
         method: 'post',
-        url: '/auth/signup',  
+        url: '/auth/signup',
         data: payload,
       });
 
       console.log('Signup successful:', response);
-     } catch (error) {
+      toast.success('Signup successful! Redirecting to login...', {
+        autoClose: 2000
+      });
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
+    } catch (error) {
       console.error('Signup failed:', error);
+      toast.error(error?.response?.data?.error || 'Signup failed!');
     }
   };
+
 
   return (
     <div className={styles.authContainer}>
@@ -171,6 +187,8 @@ const Signup = () => {
           </div>
         </form>
       </div>
+      <ToastContainer position="top-center" />
+
     </div>
   );
 };

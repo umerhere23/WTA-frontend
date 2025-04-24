@@ -17,7 +17,7 @@ import {
   FiTag,
   FiHome
 } from 'react-icons/fi';
-import styles from './DashboardLayout.module.css';
+import styles from '../Components/DashboardLayout.module.css';
 
 const DashboardLayout = () => {
   const location = useLocation();
@@ -51,11 +51,7 @@ const DashboardLayout = () => {
 
   const navItems = [
     { path: 'engagements', label: 'Engagements', icon: <FiBriefcase /> },
-    { path: 'add-user', label: 'User Management', icon: <FiUsers /> },
-    { path: 'reports', label: 'Reports', icon: <FiBarChart2 /> },
-    { path: 'add-employee', label: 'Employees', icon: <FiUsers /> },
-    { path: 'add-department', label: 'Departments', icon: <FiArchive /> },
-    { path: 'add-job', label: 'Job Roles', icon: <FiTag /> },
+ 
   ];
 
   const isActive = (path) => location.pathname.includes(path);
@@ -68,7 +64,7 @@ const DashboardLayout = () => {
           <button className={styles.menuButton} onClick={toggleSidebar} aria-label="Toggle menu">
             <FiMenu size={24} />
           </button>
-          <h1 className={styles.mobileLogo}>HR Portal</h1>
+          <h1 className={styles.mobileLogo}>Supervisor Portal</h1>
           <div className={styles.mobileUser}><FiUser size={18} /></div>
         </header>
       )}
@@ -76,7 +72,7 @@ const DashboardLayout = () => {
        <aside className={`${styles.sidebar} ${!sidebarOpen ? styles.sidebarFolded : ''}`}>
         
          <div className={styles.sidebarHeader}>
-          <h2 className={styles.logo}>{sidebarOpen ? 'HR Portal' : 'HR'}</h2>
+          <h2 className={styles.logo}>{sidebarOpen ? 'Supervisor Portal' : 'SR'}</h2>
           <button className={styles.toggleButton} onClick={toggleSidebar} aria-label="Toggle sidebar">
             {sidebarOpen ? <FiChevronLeft size={18} /> : <FiChevronRight size={18} />}
           </button>

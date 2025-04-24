@@ -60,7 +60,7 @@ const AddUser = () => {
     try {
       const userData = { ...user };
       
-       if (userData.Role !== 'HR') {
+      if (userData.Role !== 'HR') {
         if (!userData.DepartmentID) {
           throw new Error('Department is required for Supervisor/Manager');
         }
@@ -72,21 +72,7 @@ const AddUser = () => {
         await request({ url: `/users/${editingUserId}`, method: 'PUT', data: userData });
         toast.success('User updated successfully');
       } else {
-        const response = await request({ url: '/users', method: 'POST', data: userData });
-        
-        // If the role is Supervisor or Manager, add to Supervisor table
-        if (userData.Role === 'Supervisor' || userData.Role === 'Manager') {
-          await request({
-            url: '/supervisors',
-            method: 'POST',
-            data: {
-              FullName: userData.FullName,
-              Email: userData.Email,
-              DepartmentID: userData.DepartmentID
-            }
-          });
-        }
-        
+        await request({ url: '/users', method: 'POST', data: userData });
         toast.success('User added successfully');
       }
   

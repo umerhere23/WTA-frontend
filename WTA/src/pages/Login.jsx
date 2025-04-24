@@ -39,8 +39,8 @@ const Login = () => {
        setTimeout(() => {
         if (user.role === 'HR') {
           navigate('/hr/hr/engagements');
-        } else if (user.role === 'supervisor') {
-          navigate('/supervisor/dashboard');
+        } else if (user.role === 'Supervisor') {
+          navigate('/supervisor/supervisor/engagements');
         } else if (user.role === 'manager') {
           navigate('/manager/dashboard');
         } else {
