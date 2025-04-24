@@ -19,7 +19,25 @@ const AddJob = () => {
   useEffect(() => {
     fetchJobs();
   }, []);
+  const [departments, setDepartments] = useState([]);
 
+  useEffect(() => {
+    fetchJobs();
+    fetchDepartments();  
+  }, []);
+  
+  const fetchDepartments = async () => {
+    try {
+      const response = await request({
+        url: '/departments',  
+        method: 'GET'
+      });
+      setDepartments(response.data);  
+    } catch (err) {
+      toast.error('Failed to fetch departments');
+    }
+  };
+  
   const fetchJobs = async () => {
     setLoading(true);
     try {
@@ -142,15 +160,23 @@ const AddJob = () => {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Department ID:</label>
-                <input
-                  type="number"
-                  name="departmentId"
-                  value={job.departmentId}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+  <label>Department:</label>
+  <select
+    name="departmentId"
+    value={job.departmentId}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Select Department</option>
+    {departments.map((dept) => (
+      <option key={dept.DepartmentID} value={dept.DepartmentID}>
+        {dept.DepartmentName}
+      </option>
+    ))}
+  </select>
+</div>
+
+
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.saveButton} disabled={loading}>
                   {job.jobTitleId ? 'Update' : 'Save'}

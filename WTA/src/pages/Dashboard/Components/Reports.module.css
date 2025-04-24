@@ -1,0 +1,93 @@
+.dashboard {
+    padding: 2rem;
+    background: #f9f9ff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .heading {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .filters select {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 1rem;
+    min-width: 150px;
+  }
+  
+  .tableWrapper {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .reportTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .reportTable th,
+  .reportTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .reportTable th {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  .noData {
+    text-align: center;
+    padding: 1rem;
+    color: #888;
+  }
+  
+  .exportButtons {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .export {
+    padding: 0.5rem 1.2rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .export:hover {
+    background-color: #0056b3;
+  }
+  .searchContainer {
+    margin-bottom: 20px;
+  }
+  
+  .searchInput {
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
