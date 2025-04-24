@@ -33,7 +33,7 @@ const Signup = () => {
         fullName: formData.name,
         email: formData.email,
         phone: formData.phone,
-        role: formData.department,
+        role: formData.role,
         password: formData.password,
       };
 
@@ -106,24 +106,24 @@ const Signup = () => {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.inputLabel}>
-              <FaBuilding className={styles.inputIcon} />
-              Department
-            </label>
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              className={styles.formInput}
-              required
-            >
-              <option value="">Select Department</option>
-              <option value="HR">Human Resources</option>
-              <option value="Operations">Operations</option>
-              <option value="Milling">Milling</option>
-              <option value="Packaging">Packaging</option>
-            </select>
-          </div>
+  <label className={styles.inputLabel}>
+    <FaBuilding className={styles.inputIcon} />
+    Role
+  </label>
+  <select
+    name="role"
+    value={formData.role}
+    onChange={handleChange}
+    className={styles.formInput}
+    required
+  >
+    <option value="">Select Role</option>
+    <option value="HR">HR</option>
+    <option value="Supervisor">Supervisor</option>
+    <option value="Manager">Manager</option>
+  </select>
+</div>
+
 
           <div className={styles.formGroup}>
             <label className={styles.inputLabel}>

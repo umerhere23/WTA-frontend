@@ -39,6 +39,7 @@ const AddUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
       if (editingUserId) {
         await request({ url: `/users/${editingUserId}`, method: 'PUT', data: user });
@@ -47,21 +48,29 @@ const AddUser = () => {
         await request({ url: '/users', method: 'POST', data: user });
         toast.success('User added successfully');
       }
+  
       fetchUsers();
       closeModal();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error saving user');
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.message?.error ||
+        'An unexpected error occurred while saving the user.';
+        
+      toast.error(errorMsg);
+      console.error('User save error:', err);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleEdit = (u) => {
     setUser({
       FullName: u.FullName,
       Email: u.Email,
       Role: u.Role,
-      Password: ''  // Do not pass Password here when editing
+      Password: ''   
     });
     setEditingUserId(u.UserID);
     setIsModalOpen(true);

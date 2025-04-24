@@ -39,23 +39,12 @@ const Navbar = () => {
           {user && (
             <>
               <li className={styles.navItem}>
-                <Link to="/dashboard" className={styles.navLink}>
+                <Link to="/hr/hr/engagements" className={styles.navLink}>
                   <FiGrid className={styles.navIcon} />
                   <span>Dashboard</span>
                 </Link>
               </li>
-              <li className={styles.navItem}>
-                <Link to="/engagements" className={styles.navLink}>
-                  <FiBriefcase className={styles.navIcon} />
-                  <span>Engagements</span>
-                </Link>
-              </li>
-              <li className={styles.navItem}>
-                <Link to="/reports" className={styles.navLink}>
-                  <FiFileText className={styles.navIcon} />
-                  <span>Reports</span>
-                </Link>
-              </li>
+         
             </>
           )}
           <li className={styles.navItem}>
