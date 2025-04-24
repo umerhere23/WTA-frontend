@@ -7,7 +7,14 @@ import { FiEdit2, FiTrash2, FiPlus, FiX, FiLoader } from 'react-icons/fi';
 
 const AddUser = () => {
   const [users, setUsers] = useState([]);
-  const [user, setUser] = useState({ FullName: '', Email: '', Role: '', Password: '' });
+  const [departments, setDepartments] = useState([]);
+  const [user, setUser] = useState({ 
+    FullName: '', 
+    Email: '', 
+    Role: '', 
+    Password: '',
+    DepartmentID: null 
+  });
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -17,6 +24,7 @@ const AddUser = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchDepartments();
   }, []);
 
   const fetchUsers = async () => {
@@ -31,6 +39,15 @@ const AddUser = () => {
     }
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const res = await request({ url: '/departments', method: 'GET' });
+      setDepartments(res.data);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error fetching departments');
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
@@ -41,11 +58,35 @@ const AddUser = () => {
     setLoading(true);
   
     try {
+      const userData = { ...user };
+      
+       if (userData.Role !== 'HR') {
+        if (!userData.DepartmentID) {
+          throw new Error('Department is required for Supervisor/Manager');
+        }
+      } else {
+        delete userData.DepartmentID;
+      }
+
       if (editingUserId) {
-        await request({ url: `/users/${editingUserId}`, method: 'PUT', data: user });
+        await request({ url: `/users/${editingUserId}`, method: 'PUT', data: userData });
         toast.success('User updated successfully');
       } else {
-        await request({ url: '/users', method: 'POST', data: user });
+        const response = await request({ url: '/users', method: 'POST', data: userData });
+        
+        // If the role is Supervisor or Manager, add to Supervisor table
+        if (userData.Role === 'Supervisor' || userData.Role === 'Manager') {
+          await request({
+            url: '/supervisors',
+            method: 'POST',
+            data: {
+              FullName: userData.FullName,
+              Email: userData.Email,
+              DepartmentID: userData.DepartmentID
+            }
+          });
+        }
+        
         toast.success('User added successfully');
       }
   
@@ -54,7 +95,7 @@ const AddUser = () => {
     } catch (err) {
       const errorMsg =
         err?.response?.data?.message ||
-        err?.message?.error ||
+        err?.message ||
         'An unexpected error occurred while saving the user.';
         
       toast.error(errorMsg);
@@ -63,14 +104,14 @@ const AddUser = () => {
       setLoading(false);
     }
   };
-  
 
   const handleEdit = (u) => {
     setUser({
       FullName: u.FullName,
       Email: u.Email,
       Role: u.Role,
-      Password: ''   
+      Password: '',
+      DepartmentID: u.DepartmentID || null
     });
     setEditingUserId(u.UserID);
     setIsModalOpen(true);
@@ -91,7 +132,7 @@ const AddUser = () => {
   };
 
   const openModal = () => {
-    setUser({ FullName: '', Email: '', Role: '', Password: '' });
+    setUser({ FullName: '', Email: '', Role: '', Password: '', DepartmentID: null });
     setEditingUserId(null);
     setIsModalOpen(true);
   };
@@ -184,6 +225,25 @@ const AddUser = () => {
                 </select>
               </div>
               
+              {(user.Role === 'Supervisor' || user.Role === 'Manager') && (
+                <div className={styles.formGroup}>
+                  <label>Department</label>
+                  <select
+                    name="DepartmentID"
+                    value={user.DepartmentID || ''}
+                    onChange={handleChange}
+                    required={user.Role === 'Supervisor' || user.Role === 'Manager'}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.DepartmentID} value={dept.DepartmentID}>
+                        {dept.DepartmentName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
               {!editingUserId && (
                 <div className={styles.formGroup}>
                   <label>Password</label>
@@ -229,6 +289,7 @@ const AddUser = () => {
               <th>Full Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Department</th>
               <th>Created At</th>
               <th>Actions</th>
             </tr>
@@ -243,6 +304,9 @@ const AddUser = () => {
                   <span className={`${styles.roleBadge} ${styles[`role-${u.Role.toLowerCase()}`]}`}>
                     {u.Role}
                   </span>
+                </td>
+                <td data-label="Department">
+                  {u.Department ? u.Department.DepartmentName : 'N/A'}
                 </td>
                 <td data-label="Created At">{new Date(u.createdAt).toLocaleString()}</td>
                 <td data-label="Actions">
@@ -266,7 +330,7 @@ const AddUser = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan="6" className={styles.noData}>
+                <td colSpan="7" className={styles.noData}>
                   {searchTerm ? 'No matching users found' : 'No users available'}
                 </td>
               </tr>
