@@ -47,16 +47,14 @@ const AddEmployee = () => {
 
     try {
       if (employee.EmployeeID) {
-        // Update existing employee
-        await request({
+         await request({
           url: `${API_URL}/${employee.EmployeeID}`,
           method: 'PUT',
           data: employee
         });
         toast.success('Employee updated successfully');
       } else {
-        // Add new employee
-        await request({
+         await request({
           url: API_URL,
           method: 'POST',
           data: employee

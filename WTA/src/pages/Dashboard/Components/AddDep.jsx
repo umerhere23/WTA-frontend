@@ -29,7 +29,7 @@ const DepartmentPage = () => {
 
   const openModal = (dep = null) => {
     setSelectedDep(dep);
-    setEditMode(!!dep);
+    setEditMode(Boolean(dep));
     setForm(dep ? { DepartmentName: dep.DepartmentName } : { DepartmentName: '' });
     setModalOpen(true);
   };
@@ -38,6 +38,7 @@ const DepartmentPage = () => {
     setModalOpen(false);
     setSelectedDep(null);
     setForm({ DepartmentName: '' });
+    setEditMode(false);
   };
 
   const handleChange = (e) => {
@@ -46,11 +47,15 @@ const DepartmentPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.DepartmentName.trim()) {
+      toast.error('Department name cannot be empty');
+      return;
+    }
     setLoading(true);
     try {
-      if (editMode) {
+      if (editMode && selectedDep) {
         await request({
-          url: `/departments/${selectedDep._id}`,
+          url: `/departments/${selectedDep.DepartmentID}`,
           method: 'PUT',
           data: form
         });
@@ -86,9 +91,9 @@ const DepartmentPage = () => {
     }
   };
 
-  const filteredDepartments = departments.filter(dep => 
-    dep.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dep.DepartmentID.toString().includes(searchTerm)
+  const filteredDepartments = departments.filter(dep =>
+    dep.DepartmentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dep.DepartmentID?.toString().includes(searchTerm)
   );
 
   return (
@@ -131,15 +136,15 @@ const DepartmentPage = () => {
                   <td data-label="Department Name">{dep.DepartmentName}</td>
                   <td data-label="Actions">
                     <div className={styles.actionButtons}>
-                      <button 
-                        className={styles.editBtn} 
+                      <button
+                        className={styles.editBtn}
                         onClick={() => openModal(dep)}
                         title="Edit"
                       >
                         <FiEdit2 />
                       </button>
-                      <button 
-                        className={styles.deleteBtn} 
+                      <button
+                        className={styles.deleteBtn}
                         onClick={() => deleteDepartment(dep.DepartmentID)}
                         title="Delete"
                       >
@@ -181,21 +186,15 @@ const DepartmentPage = () => {
                 />
               </div>
               <div className={styles.modalActions}>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className={styles.submitButton}
                   disabled={loading}
                 >
-                  {loading ? (
-                    <span className={styles.loadingText}>Saving...</span>
-                  ) : editMode ? (
-                    'Update Department'
-                  ) : (
-                    'Create Department'
-                  )}
+                  {loading ? 'Saving...' : editMode ? 'Update Department' : 'Create Department'}
                 </button>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={closeModal}
                   className={styles.cancelButton}
                 >
@@ -207,8 +206,8 @@ const DepartmentPage = () => {
         </div>
       )}
 
-      <ToastContainer 
-        position="top-right" 
+      <ToastContainer
+        position="top-right"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
