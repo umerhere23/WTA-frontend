@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AddEmployee.module.css';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import request from '../../../../api/request';
-import { ToastContainer } from 'react-toastify';
 
 const API_URL = '/employees';
 
@@ -16,6 +15,11 @@ const AddEmployee = () => {
   const [employees, setEmployees] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const generateRandomID = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit random ID
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -24,7 +28,7 @@ const AddEmployee = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await request({ 
+      const response = await request({
         url: API_URL,
         method: 'GET'
       });
@@ -34,6 +38,26 @@ const AddEmployee = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openModal = () => {
+    setEmployee({
+      EmployeeID: generateRandomID(),
+      FullName: '',
+      ContactInfo: ''
+    });
+    setIsEditMode(false);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setEmployee({
+      EmployeeID: '',
+      FullName: '',
+      ContactInfo: ''
+    });
+    setIsEditMode(false);
+    setIsModalOpen(false);
   };
 
   const handleChange = (e) => {
@@ -46,15 +70,15 @@ const AddEmployee = () => {
     setLoading(true);
 
     try {
-      if (employee.EmployeeID) {
-         await request({
+      if (isEditMode) {
+        await request({
           url: `${API_URL}/${employee.EmployeeID}`,
           method: 'PUT',
           data: employee
         });
         toast.success('Employee updated successfully');
       } else {
-         await request({
+        await request({
           url: API_URL,
           method: 'POST',
           data: employee
@@ -66,7 +90,7 @@ const AddEmployee = () => {
       closeModal();
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 
-                (employee.EmployeeID ? 'Failed to update employee' : 'Failed to add employee'));
+        (isEditMode ? 'Failed to update employee' : 'Failed to add employee'));
     } finally {
       setLoading(false);
     }
@@ -74,6 +98,7 @@ const AddEmployee = () => {
 
   const handleEdit = (emp) => {
     setEmployee(emp);
+    setIsEditMode(true);
     setIsModalOpen(true);
   };
 
@@ -95,15 +120,6 @@ const AddEmployee = () => {
     }
   };
 
-  const openModal = () => {
-    setEmployee({ EmployeeID: '', FullName: '', ContactInfo: '' });
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -120,11 +136,12 @@ const AddEmployee = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h3>{employee.EmployeeID ? 'Edit Employee' : 'Add Employee'}</h3>
+              <h3>{isEditMode ? 'Edit Employee' : 'Add Employee'}</h3>
               <button onClick={closeModal} className={styles.closeButton}>
                 &times;
               </button>
             </div>
+
             <form onSubmit={handleSubmit} className={styles.modalForm}>
               <div className={styles.formGroup}>
                 <label>Employee ID:</label>
@@ -134,9 +151,10 @@ const AddEmployee = () => {
                   value={employee.EmployeeID}
                   onChange={handleChange}
                   required
-                  disabled={!!employee.EmployeeID}
+                  disabled
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Full Name:</label>
                 <input
@@ -147,6 +165,7 @@ const AddEmployee = () => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Contact Info:</label>
                 <input
@@ -157,9 +176,10 @@ const AddEmployee = () => {
                   required
                 />
               </div>
+
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.saveButton} disabled={loading}>
-                  {employee.EmployeeID ? 'Update' : 'Save'}
+                  {isEditMode ? 'Update' : 'Save'}
                 </button>
                 <button type="button" onClick={closeModal} className={styles.cancelButton}>
                   Cancel
@@ -170,7 +190,7 @@ const AddEmployee = () => {
         </div>
       )}
 
-      {/* Employee Table */}
+      {/* Employee List */}
       <div className={styles.tableContainer}>
         {employees.length === 0 ? (
           <p className={styles.noData}>No employees found</p>
@@ -191,13 +211,13 @@ const AddEmployee = () => {
                   <td>{emp.FullName}</td>
                   <td>{emp.ContactInfo}</td>
                   <td className={styles.actions}>
-                    <button 
+                    <button
                       onClick={() => handleEdit(emp)}
                       className={styles.editButton}
                     >
                       Edit
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDelete(emp.EmployeeID)}
                       className={styles.deleteButton}
                     >
@@ -210,6 +230,7 @@ const AddEmployee = () => {
           </table>
         )}
       </div>
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
