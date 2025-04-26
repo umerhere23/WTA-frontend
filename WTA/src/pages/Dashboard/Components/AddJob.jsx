@@ -8,36 +8,32 @@ const API_URL = '/jobtitles';
 
 const AddJob = () => {
   const [job, setJob] = useState({
-    jobTitleId: '',
-    title: '',
-    departmentId: ''
+    JobTitleID: '',
+    Title: '',
+    DepartmentID: ''
   });
   const [jobs, setJobs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
   const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
     fetchJobs();
-    fetchDepartments();  
+    fetchDepartments();
   }, []);
-  
+
   const fetchDepartments = async () => {
     try {
       const response = await request({
-        url: '/departments',  
+        url: '/departments',
         method: 'GET'
       });
-      setDepartments(response.data);  
+      setDepartments(response.data);
     } catch (err) {
       toast.error('Failed to fetch departments');
     }
   };
-  
+
   const fetchJobs = async () => {
     setLoading(true);
     try {
@@ -47,10 +43,10 @@ const AddJob = () => {
       });
       setJobs(
         response.data.map(j => ({
-          jobTitleId: j.JobTitleID,
-          title: j.Title,
-          departmentId: j.DepartmentID,
-          departmentName: j.Department?.DepartmentName
+          JobTitleID: j.JobTitleID,
+          Title: j.Title,
+          DepartmentID: j.DepartmentID,
+          DepartmentName: j.Department?.DepartmentName
         }))
       );
     } catch (err) {
@@ -69,9 +65,9 @@ const AddJob = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (job.jobTitleId) {
+      if (job.JobTitleID) {
         await request({
-          url: `${API_URL}/${job.jobTitleId}`,
+          url: `${API_URL}/${job.JobTitleID}`,
           method: 'PUT',
           data: job
         });
@@ -89,7 +85,7 @@ const AddJob = () => {
     } catch (err) {
       toast.error(
         err.response?.data?.message || err.message ||
-        (job.jobTitleId ? 'Failed to update job title' : 'Failed to add job title')
+        (job.JobTitleID ? 'Failed to update job title' : 'Failed to add job title')
       );
     } finally {
       setLoading(false);
@@ -98,9 +94,9 @@ const AddJob = () => {
 
   const handleEdit = (jobData) => {
     setJob({
-      jobTitleId: jobData.jobTitleId,
-      title: jobData.title,
-      departmentId: jobData.departmentId
+      JobTitleID: jobData.JobTitleID,
+      Title: jobData.Title,
+      DepartmentID: jobData.DepartmentID
     });
     setIsModalOpen(true);
   };
@@ -124,7 +120,7 @@ const AddJob = () => {
   };
 
   const openModal = () => {
-    setJob({ jobTitleId: '', title: '', departmentId: '' });
+    setJob({ JobTitleID: '', Title: '', DepartmentID: '' });
     setIsModalOpen(true);
   };
 
@@ -145,7 +141,7 @@ const AddJob = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h3>{job.jobTitleId ? 'Edit Job Title' : 'Add Job Title'}</h3>
+              <h3>{job.JobTitleID ? 'Edit Job Title' : 'Add Job Title'}</h3>
               <button onClick={closeModal} className={styles.closeButton}>&times;</button>
             </div>
             <form onSubmit={handleSubmit} className={styles.modalForm}>
@@ -153,33 +149,31 @@ const AddJob = () => {
                 <label>Job Title:</label>
                 <input
                   type="text"
-                  name="title"
-                  value={job.title}
+                  name="Title"
+                  value={job.Title}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className={styles.formGroup}>
-  <label>Department:</label>
-  <select
-    name="departmentId"
-    value={job.departmentId}
-    onChange={handleChange}
-    required
-  >
-    <option value="">Select Department</option>
-    {departments.map((dept) => (
-      <option key={dept.DepartmentID} value={dept.DepartmentID}>
-        {dept.DepartmentName}
-      </option>
-    ))}
-  </select>
-</div>
-
-
+                <label>Department:</label>
+                <select
+                  name="DepartmentID"
+                  value={job.DepartmentID}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.DepartmentID} value={dept.DepartmentID}>
+                      {dept.DepartmentName}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.saveButton} disabled={loading}>
-                  {job.jobTitleId ? 'Update' : 'Save'}
+                  {job.JobTitleID ? 'Update' : 'Save'}
                 </button>
                 <button type="button" onClick={closeModal} className={styles.cancelButton}>
                   Cancel
@@ -204,12 +198,12 @@ const AddJob = () => {
             </thead>
             <tbody>
               {jobs.map(j => (
-                <tr key={j.jobTitleId}>
-                  <td>{j.title}</td>
-                  <td>{j.departmentName || j.departmentId}</td>
+                <tr key={j.JobTitleID}>
+                  <td>{j.Title}</td>
+                  <td>{j.DepartmentName || j.DepartmentID}</td>
                   <td className={styles.actions}>
                     <button onClick={() => handleEdit(j)} className={styles.editButton}>Edit</button>
-                    <button onClick={() => handleDelete(j.jobTitleId)} className={styles.deleteButton}>Delete</button>
+                    <button onClick={() => handleDelete(j.JobTitleID)} className={styles.deleteButton}>Delete</button>
                   </td>
                 </tr>
               ))}
