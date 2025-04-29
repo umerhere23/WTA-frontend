@@ -65,7 +65,7 @@ const Home = () => {
   }, []);
   return (
     <div className={styles.container}>
-       <header className={styles.hero}>
+       <header className={styles.hero} style={{padding:"10px"}}>
         <div className={styles.heroContent}>
           <h1 className={styles.title}>
             <span className={styles.titleHighlight}>Optimize</span> Your Casual Workforce Management
