@@ -1,7 +1,68 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Home.module.css';
 
 const Home = () => {
+
+  const [stats, setStats] = useState([
+    { id: 1, value: 0, target: 187, label: "Active Engagements" },
+    { id: 2, value: 0, target: 3, label: "Month Limit" },
+    { id: 3, value: 0, target: 4, label: "Alert Stages" },
+    { id: 4, value: 0, target: 24, label: "/7 Monitoring" }
+  ]);
+
+   const getRandomValue = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  useEffect(() => {
+     setStats([
+      { id: 1, value: 0, target: getRandomValue(150, 250), label: "Active Engagements" },
+      { id: 2, value: 0, target: 3, label: "Month Limit" },
+      { id: 3, value: 0, target: 4, label: "Alert Stages" },
+      { id: 4, value: 0, target: 24, label: "/7 Monitoring" }
+    ]);
+
+     const animateCounters = () => {
+      const duration = 2000;  
+      const startTime = performance.now();
+
+      const updateCounters = (currentTime) => {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        
+        setStats(prevStats => 
+          prevStats.map(stat => ({
+            ...stat,
+            value: Math.floor(progress * stat.target)
+          }))
+        );
+
+        if (progress < 1) {
+          requestAnimationFrame(updateCounters);
+        }
+      };
+
+      requestAnimationFrame(updateCounters);
+    };
+
+     const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const statsSection = document.querySelector(`.${styles.stats}`);
+    if (statsSection) {
+      observer.observe(statsSection);
+    }
+
+    return () => {
+      if (statsSection) {
+        observer.unobserve(statsSection);
+      }
+    };
+  }, []);
   return (
     <div className={styles.container}>
        <header className={styles.hero}>
@@ -75,25 +136,14 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section with animated counters */}
       <section className={styles.stats}>
-        <div className={styles.statItem}>
-          <span className={styles.statNumber} data-count="100">0</span>
-          <span className={styles.statLabel}>Active Engagements</span>
+      {stats.map((stat) => (
+        <div key={stat.id} className={styles.statItem}>
+          <span className={styles.statNumber}>{stat.value}</span>
+          <span className={styles.statLabel}>{stat.label}</span>
         </div>
-        <div className={styles.statItem}>
-          <span className={styles.statNumber} data-count="3">0</span>
-          <span className={styles.statLabel}>Month Limit</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={styles.statNumber} data-count="4">0</span>
-          <span className={styles.statLabel}>Alert Stages</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={styles.statNumber} data-count="24">0</span>
-          <span className={styles.statLabel}>/7 Monitoring</span>
-        </div>
-      </section>
+      ))}
+    </section>
 
       {/* How It Works Section */}
       <section className={styles.demo}>
