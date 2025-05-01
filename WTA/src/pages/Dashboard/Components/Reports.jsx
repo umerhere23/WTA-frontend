@@ -3,7 +3,7 @@ import styles from './Reports.module.css';
 import request from '../../../../api/request';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const Reports = () => {
   const [engagements, setEngagements] = useState([]);
@@ -115,37 +115,74 @@ const Reports = () => {
   };
 
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    const title = 'Engagements Report';
-    const headers = [['Department', 'Employee', 'Job Title', 'Status', 'Start Date', 'End Date']];
-    
-    const data = filteredEngagements.map(engagement => [
-      engagement.Department.DepartmentName,
-      engagement.Employee.FullName,
-      engagement.JobTitle.Title,
-      engagement.Status,
-      engagement.StartDate,
-      engagement.EndDate
-    ]);
+    try {
+      const doc = new jsPDF({
+        orientation: 'landscape' 
+      });
 
-    doc.text(title, 14, 15);
-    doc.autoTable({
-      head: headers,
-      body: data,
-      startY: 20,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        overflow: 'linebreak'
-      },
-      headStyles: {
-        fillColor: [41, 128, 185],
-        textColor: 255,
-        fontStyle: 'bold'
-      }
-    });
+      doc.setFontSize(16);
+      doc.text('Engagements Report', 14, 15);
 
-    doc.save('Engagements_Report.pdf');
+      const headers = [
+        'Department',
+        'Employee', 
+        'Job Title',
+        'Status',
+        'Start Date',
+        'End Date'
+      ];
+
+      const data = filteredEngagements.map(engagement => [
+        engagement.Department.DepartmentName,
+        engagement.Employee.FullName,
+        engagement.JobTitle.Title,
+        engagement.Status,
+        engagement.StartDate,
+        engagement.EndDate
+      ]);
+
+      autoTable(doc, {
+        head: [headers],
+        body: data,
+        startY: 25, 
+        margin: { horizontal: 10 }, 
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          overflow: 'linebreak',
+          valign: 'middle'
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 'auto' },
+          3: { cellWidth: 'auto' },
+          4: { cellWidth: 'auto' },
+          5: { cellWidth: 'auto' }
+        },
+        didDrawPage: (data) => {
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(10);
+          doc.text(
+            `Page ${data.pageNumber} of ${pageCount}`,
+            doc.internal.pageSize.width / 2,
+            doc.internal.pageSize.height - 10,
+            { align: 'center' }
+          );
+        }
+      });
+
+      doc.save('Engagements_Report.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
   };
 
   return (
